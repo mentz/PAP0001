@@ -17,12 +17,12 @@ int main (int argc, char **argv)
 	// Ler o mapa
 	{
 		ifstream fis ("bounds.txt", ifstream::in);
-		int n, a;
+		int n;
 		fis >> n;
 		mapa = vector<Borda>(n);	
 		for (int i = 0; i < n; i++)
 		{
-			fis >> a >> mapa[i].y >> mapa[i].x;
+			fis >> mapa[i].y >> mapa[i].x;
 			// Converter para resolução atual
 			mapa[i].x *= s.width / 1920.0;
 			mapa[i].y *= s.height / 1080.0;
@@ -49,9 +49,9 @@ int main (int argc, char **argv)
 			s.drawPixel(mapa[i].x, mapa[i].y, bordas);
 
 		for (uint x = 0; x < s.width; x += xinterval)
-			s.drawLine(x, 0, x, s.height - 1, linhas);
+			s.drawDottedLine(x, 0, x, s.height - 1, 3, linhas);
 		for (uint y = 0; y < s.height; y += yinterval)
-			s.drawLine(0, y, s.width - 1, y, linhas);
+			s.drawDottedLine(0, y, s.width - 1, y, 3, linhas);
 
 		// Desenhar 'frame' pra deixar bonito
 		s.drawLine(0, 0, 0, s.height - 1, branco);
