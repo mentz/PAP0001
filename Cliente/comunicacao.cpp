@@ -2,8 +2,7 @@
 
 using namespace std;
 
-parada requestParadaAviao(std::string ip, int porta, int mensagens_recebidas){
-    parada info_recebida;
+void requestParadaAviao(std::string ip, int porta, vector<Parada> &paradas, int mensagens_recebidas){
 
     int sock = -1;
 
@@ -19,26 +18,43 @@ parada requestParadaAviao(std::string ip, int porta, int mensagens_recebidas){
 
     if ( connect(sock, (struct sockaddr *) &server_addr , sizeof(server_addr)) < 0 ){
       cerr << "Error: connection failure." << endl;
-      return info_recebida;
+      return;
     }
 
     string data = "x;1;" + std::to_string(mensagens_recebidas) + ";x";
+    // string data = "x;1;0;0.002;0.003;40;xx;1;1;0.003;0.003;50;x";
     if( send(sock , data.c_str() , strlen( data.c_str() ) , 0) < 0)
     {
       cerr << "Error: send failed."  << endl;
-      return info_recebida;
+      return;
     }
 
     //Receive a reply from the server
-    char buffer[256];
-    memset( buffer, 0, 256 );
+    char buffer[8192];
+    memset( buffer, 0, 8192 );
     if( recv(sock, buffer, sizeof(buffer), 0) < 0)
     {
       cerr << "Error: receive failed." << endl;
     }
 
-    cout << "Sent:     " << data << endl;
-    cout << "Received: " << buffer << endl;
+    string msg = buffer;
+    Parada parada_atual;
+    cout << msg << endl;
+    int divisoria = 0;
+    while(divisoria < msg.size() - 2){
+        divisoria = msg.find(";", divisoria + 1);
+        parada_atual.id_aviao = stoi(msg.substr(divisoria + 1, msg.find(";", divisoria)));
+        divisoria = msg.find(";", divisoria + 1);
+        parada_atual.id_parada = stoi(msg.substr(divisoria + 1, msg.find(";", divisoria)));
+        divisoria = msg.find(";", divisoria + 1);
+        parada_atual.latitude = stof(msg.substr(divisoria + 1, msg.find(";", divisoria)));
+        divisoria = msg.find(";", divisoria + 1);
+        parada_atual.longitude = stof(msg.substr(divisoria + 1, msg.find(";", divisoria)));
+        divisoria = msg.find(";", divisoria + 1);
+        parada_atual.carga_descarga = stoi(msg.substr(divisoria + 1, msg.find(";", divisoria)));
+        paradas.push_back(parada_atual);
+        divisoria = msg.find(";", divisoria + 1);
+    }
 
     close( sock );
 

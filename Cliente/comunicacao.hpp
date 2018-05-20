@@ -6,15 +6,16 @@
 #include <arpa/inet.h> //inet_addr
 #include <unistd.h> // close
 #include <string.h>
+#include <vector>
 
 typedef struct {
     int id_aviao;
     int id_parada;
+    float latitude;
+    float longitude;
     float carga_descarga;
-    int coord_x;
-    int coord_y;
-} parada;
+} Parada;
 
-parada requestParadaAviao(std::string ip, int porta, int mensagens_recebidas);
+void requestParadaAviao(std::string ip, int porta, std::vector<Parada> &paradas, int mensagens_recebidas);
 
 #endif
