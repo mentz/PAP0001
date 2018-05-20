@@ -38,10 +38,17 @@ typedef struct {
 	uint_fast8_t r, g, b;
 } Color;
 
-class Screen
-{
+
+class Borda {
+public:
+	int x;
+	int y;
+};
+
+class Screen {
 private:
 	char 	*buffer;
+	char	*buffer2;
 	uint	red, green, blue;
 	int 	ttyfd, fbfd;
 	size_t	size, bytes_per_pixel, bytes_per_line;
@@ -91,6 +98,7 @@ public:
 		this->width				= vinf.xres;
 		this->height				= vinf.yres;
 		this->buffer = (char*) mmap (0, this->size, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
+		this->buffer2 = (char*) malloc(this->size);
 	
 		if (this->buffer == MAP_FAILED)
 			Die ("cannot map frame buffer \"%s\"", fbdev);
@@ -140,10 +148,14 @@ public:
 	// Desenhar círculos
 	void drawCircle(uint x, uint y, uint r, Color c)
 	{
+		int r2 = r*r, d;
 		for (uint i = y - r; i < y + r; i++)
 			for (uint j = x - r; j < x + r; j++)
-				if (hypot(ABS(j - x), ABS(i - y)) <= r)
+			{
+				d = ((j - x) * (j - x)) + ((i - y) * (i - y));
+				if (d <= r2)
 					drawPixel(j, i, c);
+			}
 	}
 
 	// Destrutor
