@@ -96,7 +96,7 @@ public:
 		this->green				= vinf.green.offset/8;
 		this->blue				= vinf.blue.offset/8;
 		this->width				= vinf.xres;
-		this->height				= vinf.yres;
+		this->height			= vinf.yres;
 		this->front_buffer = (char*) mmap (0, this->size, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
 		this->back_buffer = (char*) malloc(this->size);
 	
@@ -129,16 +129,7 @@ public:
 				drawPixel(x, y, c);
 	}
 
-	/*
-	void drawLineLow(uint x0, uint x1, uint y0, uint y1, Color c)
-	{
-		int dx = x1 - x0;
-		int dy = y1 - y0;
-		int yi = 1;
-	}
-	*/
-
-	void drawLine(uint x0, uint y0, uint x1, uint y1, Color c)
+	void drawDottedLine(uint x0, uint y0, uint x1, uint y1, uint spacing, Color c)
 	{
 		// TODO Implementar Bresenham's line
 		float dx = x1 - x0, dy = y1 - y0, x = x0, y = y0;
@@ -147,8 +138,13 @@ public:
 		for (int i = 0; i < (int) fmax && i <= 3840; i++)
 		{
 			drawPixel((uint) x, (uint) y, c);
-			x += dx; y += dy;
+			x += spacing * dx; y += spacing * dy;
 		}
+	}
+
+	void drawLine(uint x0, uint y0, uint x1, uint y1, Color c)
+	{
+		drawDottedLine(x0, y0, x1, y1, 1, c);
 	}
 
 	// Desenhar círculos
