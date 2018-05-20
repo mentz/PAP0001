@@ -22,8 +22,8 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             #Considerando que o reques seja no formato 'x;1;n;x', onde n é o índice do próximo registro que o cliente_framebuffer espera
             i = 0
             for stop in paradas:
-                if(i > data[2])
-                    envio += str("x;" + stop[0] + ";" + stop[1] + ";" + stop[2] + ";" stop[3] + ";" + stop[4] + ";x")
+                if(i > data[2]):
+                    envio += str("x;" + stop[0] + ";" + stop[1] + ";" + stop[2] + ";" + stop[3] + ";" + stop[4] + ";x")
                 i = i + 1 
                 
             self.request.sendall(bytes(envio, "utf-8"))
