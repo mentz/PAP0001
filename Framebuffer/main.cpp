@@ -17,12 +17,12 @@ int main (int argc, char **argv)
 	// Ler o mapa
 	{
 		ifstream fis ("bounds.txt", ifstream::in);
-		int n, a;
+		int n;
 		fis >> n;
 		mapa = vector<Borda>(n);	
 		for (int i = 0; i < n; i++)
 		{
-			fis >> a >> mapa[i].y >> mapa[i].x;
+			fis >> mapa[i].y >> mapa[i].x;
 			// Converter para resolução atual
 			mapa[i].x *= s.width / 1920.0;
 			mapa[i].y *= s.height / 1080.0;
