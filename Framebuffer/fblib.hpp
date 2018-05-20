@@ -15,6 +15,7 @@
 #include <ctime>
 #include <cmath>
 #include <signal.h>
+#include <cstring>
 
 #define MAX(a,b) ((a>b)?a:b)
 #define ABS(a) ((a>=0)?a:-a)
@@ -47,8 +48,7 @@ public:
 
 class Screen {
 private:
-	char 	*buffer;
-	char	*buffer2;
+	char 	*front_buffer, *back_buffer;
 	uint	red, green, blue;
 	int 	ttyfd, fbfd;
 	size_t	size, bytes_per_pixel, bytes_per_line;
@@ -97,11 +97,17 @@ public:
 		this->blue				= vinf.blue.offset/8;
 		this->width				= vinf.xres;
 		this->height				= vinf.yres;
-		this->buffer = (char*) mmap (0, this->size, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
-		this->buffer2 = (char*) malloc(this->size);
+		this->front_buffer = (char*) mmap (0, this->size, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
+		this->back_buffer = (char*) malloc(this->size);
 	
-		if (this->buffer == MAP_FAILED)
+		if (this->front_buffer == MAP_FAILED)
 			Die ("cannot map frame buffer \"%s\"", fbdev);
+
+		if (this->back_buffer == NULL)
+		{
+			fprintf (stderr, "cannot create double buffer");
+			exit(2);
+		}
 	}
 
 	void drawPixel(uint x, uint y, Color c)
@@ -111,9 +117,9 @@ public:
 			return;
 
 		uint pix_offset = x * this->bytes_per_pixel + y * this->bytes_per_line;
-		this->buffer[pix_offset + this->red]   = c.r;
-		this->buffer[pix_offset + this->green] = c.g;
-		this->buffer[pix_offset + this->blue]  = c.b;
+		this->back_buffer[pix_offset + this->red]   = c.r;
+		this->back_buffer[pix_offset + this->green] = c.g;
+		this->back_buffer[pix_offset + this->blue]  = c.b;
 	}
 
 	void clear(Color c)
@@ -158,10 +164,18 @@ public:
 			}
 	}
 
+	// Swap buffers to render
+	void swapBuffers()
+	{
+		memcpy(front_buffer, back_buffer, this->size);
+	}
+
 	// Destrutor
 	~Screen ()
 	{
-		munmap (this->buffer, this->size);
+		munmap (this->front_buffer, this->size);
+		free (back_buffer);
+		back_buffer = NULL;
 
 		if (ioctl (ttyfd, KDSETMODE, KD_TEXT) == -1)
 			Die ("cannot set tty into text mode on \"%s\"", ttydev);

@@ -24,18 +24,18 @@ int main (int argc, char **argv)
 		{
 			fis >> a >> mapa[i].y >> mapa[i].x;
 			// Converter para resolução atual
-			mapa[i].x *= s.width / 1920;
-			mapa[i].y *= s.height / 1080;
+			mapa[i].x *= s.width / 1920.0;
+			mapa[i].y *= s.height / 1080.0;
 		}
 	}
-	
-	int time_start = time (NULL);
 
-	// Desenhar grade do mundo
+	int time_start = time (NULL);
 	
-	Color fundo = {30, 30, 120},
-		  linhas = {80, 80, 83};
-	int linestep  = 30;
+	Color fundo = {20, 25, 80},
+		  linhas = {150, 150, 150},
+		  bordas = {10, 230, 30},
+		  branco = {255, 255, 255};
+	int linestep  = 15;
 	int xinterval = s.width * linestep  / 360;
 	int yinterval = s.height * linestep / 180;
 
@@ -46,18 +46,20 @@ int main (int argc, char **argv)
 		
 		// Desenhar o mapa
 		for (uint i = 0; i < mapa.size(); i++)
-			s.drawPixel(mapa[i].x, mapa[i].y, {10, 240, 30});
+			s.drawPixel(mapa[i].x, mapa[i].y, bordas);
 
 		for (uint x = 0; x < s.width; x += xinterval)
 			s.drawLine(x, 0, x, s.height - 1, linhas);
 		for (uint y = 0; y < s.height; y += yinterval)
 			s.drawLine(0, y, s.width - 1, y, linhas);
 
-		s.drawLine(20, 20, 1900, 1060, {0, 255, 100});
-		s.drawLine(600, 400, 800, 600, {255, 0, 160});
-		s.drawCircle(960, 540, 80, {255, 200, 120});
+		// Desenhar 'frame' pra deixar bonito
+		s.drawLine(0, 0, 0, s.height - 1, branco);
+		s.drawLine(0, s.height - 1, s.width - 1, s.height - 1, branco);
+		s.drawLine(s.width - 1, 0, s.width - 1, s.height - 1, branco);
+		s.drawLine(0, 0, s.width - 1, 0, branco);
 
-		//s.swapBuffers();
+		s.swapBuffers();
 		t++;
 	}
 
