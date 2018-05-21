@@ -26,22 +26,28 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 			# Considerando que o request seja no formato 'x;1;n;x', onde n é o
 			# índice do próximo registro que o cliente_framebuffer espera
 			i = 0
+			envio = ""
 			for stop in paradas:
-				if(i > data[2]):
-					envio += str("x;" + stop[0] + ";" + stop[1] + ";" + stop[2] + ";" + stop[3] + ";" + stop[4] + ";x")
+				if(i >= int(data[2])):
+					envio += str(str(i) + " " + stop[0] + " " + stop[1] + " " + stop[2] + " " + stop[3] + " " + stop[4] + " ")
 				i = i + 1
-
+			print("Enviando %s" %envio);
 			self.request.sendall(bytes(envio, "utf-8"))
 
 if __name__ == "__main__":
 	PORT = 9998
-	print("Digite o endereco do servidor: ")
-	HOST = input()
+	#print("Digite o endereco do servidor: ")
+	HOST = '0.0.0.0'
 
 	print("Iniciando servidor")
-	# Create the server, binding to localhost on port 9990
-	server = socketserver.TCPServer((HOST, PORT), MyTCPHandler)
+	try:
+		# Create the server, binding to localhost on port 9990
+		server = socketserver.TCPServer((HOST, PORT), MyTCPHandler)
 
-	# Activate the server; this will keep running until you
-	# interrupt the program with Ctrl-C
-	server.serve_forever()
+		# Activate the server; this will keep running until you
+		# interrupt the program with Ctrl-C
+		server.serve_forever()
+	except KeyboardInterrupt:
+		print("Stopping server")
+	finally:
+		server.server_close()
