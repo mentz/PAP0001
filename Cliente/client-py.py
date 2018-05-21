@@ -6,7 +6,8 @@ import sys
 import time
 from random import randrange, uniform
 
-PORT = 16386
+PORT = 9998
+HOST = ""
 
 print("Digite o IP do servidor")
 HOST = input();
@@ -36,7 +37,7 @@ while True:
 		print("Digite qual alteração na carga (positivo para carga e negativo para descarga): ")
 		carga = float(input())
 		data = "x;0;" + str(num_aviao) + ";" + str(num_parada) + ";" + str(lat) + ";" + str(long) + ";" + str(carga) + ";x"
-		
+
 		sock.sendall(bytes(data, "utf-8"))
 		received = str(sock.recv(1024), "utf-8")
 	finally:

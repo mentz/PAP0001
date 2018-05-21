@@ -6,6 +6,8 @@ import sys
 
 # armazena id do avião, num_parada, latitute, longitude, carga
 paradas = []
+HOST = ""
+PORT = ""
 
 class MyTCPHandler(socketserver.BaseRequestHandler):
 
@@ -27,12 +29,12 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 			for stop in paradas:
 				if(i > data[2]):
 					envio += str("x;" + stop[0] + ";" + stop[1] + ";" + stop[2] + ";" + stop[3] + ";" + stop[4] + ";x")
-				i = i + 1 
-				
+				i = i + 1
+
 			self.request.sendall(bytes(envio, "utf-8"))
 
 if __name__ == "__main__":
-	PORT = 16368
+	PORT = 9998
 	print("Digite o endereco do servidor: ")
 	HOST = input()
 
