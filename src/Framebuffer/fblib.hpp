@@ -23,13 +23,13 @@
 #define ttydev "/dev/tty"
 
 #define Die(Msg, ...) {\
-	fprintf (stderr, "drawPlane: " Msg ".\n", __VA_ARGS__);\
+	fprintf (stderr, "fbclient: " Msg ".\n", __VA_ARGS__);\
 	exit(1);\
 }\
 
 #define Assumption(Cond, Msg) \
 	if (!(Cond)) { \
-		fprintf (stderr, "drawPlane: failed assumption: %s\n", Msg);\
+		fprintf (stderr, "fbclient: failed assumption: %s\n", Msg);\
 		exit(2); \
 	}
 

@@ -3,21 +3,24 @@
 
 import socket
 import sys
+from sys import argv
 import time
 from random import randrange, uniform
 
 PORT = 9998
 HOST = ""
 
-print("Digite o IP do servidor")
-HOST = input();
+#print("Digite o IP do servidor")
+if len(argv) < 2:
+	print("Uso: %s <ip_servidor>" %argv[0])
+	exit()
+
+HOST = argv[1];
 
 while True:
 	try:
 		print("Digite o numero do aviao: ")
 		num_aviao = int(input())
-		print("Digite o numero da parada: ")
-		num_parada = int(input())
 		while True:
 			print("Digite a latitude: ")
 			lat = float(input())
@@ -34,7 +37,7 @@ while True:
 
 		print("Digite qual alteração na carga (positivo para carga e negativo para descarga): ")
 		carga = float(input())
-		data = "x;0;" + str(num_aviao) + ";" + str(num_parada) + ";" + str(lat) + ";" + str(long) + ";" + str(carga) + ";x"
+		data = "x;0;" + str(num_aviao) + ";" + str(lat) + ";" + str(long) + ";" + str(carga) + ";x"
 
 		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		sock.connect((HOST, PORT))

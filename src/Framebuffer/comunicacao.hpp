@@ -8,18 +8,36 @@
 #include <unistd.h> // close
 #include <string.h>
 #include <vector>
-
-typedef struct {
-	int id_aviao;
-	int id_parada;
-	float latitude;
-	float longitude;
-	float carga_descarga;
-} Parada;
+#include <map>
 
 using namespace std;
 
-void requestParadas(string host, int porta, vector<Parada> &paradas, int &contador)
+typedef struct {
+	int cont;
+	int num_parada;
+	float lat;
+	float lon;
+	float carga_descarga;
+	double x, y;
+} Parada;
+
+class Avioes {
+public:
+	map<int, vector<Parada> > mapa;
+	int contador = 0;
+
+	vector<Parada> operator[](const int &a)
+	{
+		return mapa[a];
+	}
+
+	bool inline getHasKey(int a)
+	{
+		return mapa.find(a) != mapa.end();
+	}
+};
+
+void requestParadas(string host, int porta, Avioes &avioes)
 {
 	int sock = -1;
 
@@ -38,7 +56,7 @@ void requestParadas(string host, int porta, vector<Parada> &paradas, int &contad
 		return;
 	}
 
-	string data = "x;1;" + std::to_string(contador) + ";x";
+	string data = "x;1;" + std::to_string(avioes.contador) + ";x";
 	if( send(sock , data.c_str() , strlen( data.c_str() ) , 0) < 0)
 	{
 		cerr << "Error: send failed."  << endl;
@@ -53,39 +71,37 @@ void requestParadas(string host, int porta, vector<Parada> &paradas, int &contad
 		cerr << "Error: receive failed." << endl;
 	}
 
+	/* Formato da resposta do servidor:
+		"" (se não houver nenhum dado novo)
+	   ou
+		"<id_aviao> <contador_global> <contador_da_parada> <lat> <lon> <carga/descarga>\n"
+		(repete se houver mais entradas numa mesma solicitação)
+	*/
 	printf("Recebido: \n%s\n", buffer);
 	stringstream msg_buf;
 	msg_buf << buffer;
-	int ii, ia, ip;
+	int ic, ia, ip;
 	float lat, lon, cd;
-	cout << "Recebidos:\n";
-	while(msg_buf >> ii >> ia >> ip >> lat >> lon >> cd)
+	double x, y;
+	if (msg_buf.str() != "") cout << "Recebidos:\n";
+	while(msg_buf >> ia >> ic >> ip >> lat >> lon >> cd)
 	{
-		cout << "teste\n";
-		/*
-		divisoria = msg.find(";", divisoria + 1);
-		parada_atual.id_aviao = stoi(msg.substr(divisoria + 1, msg.find(";", divisoria)));
-		divisoria = msg.find(";", divisoria + 1);
-		parada_atual.id_parada = stoi(msg.substr(divisoria + 1, msg.find(";", divisoria)));
-		divisoria = msg.find(";", divisoria + 1);
-		parada_atual.latitude = stof(msg.substr(divisoria + 1, msg.find(";", divisoria)));
-		divisoria = msg.find(";", divisoria + 1);
-		parada_atual.longitude = stof(msg.substr(divisoria + 1, msg.find(";", divisoria)));
-		divisoria = msg.find(";", divisoria + 1);
-		parada_atual.carga_descarga = stoi(msg.substr(divisoria + 1, msg.find(";", divisoria)));
-		paradas.push_back(parada_atual);
-		divisoria = msg.find(";", divisoria + 1);
-		*/
+		cout << ic << "," << ia << "," << ip << "," << lat << "," << lon << "," << cd << "\n";
 
-		cout << ia << "," << ip << "," << lat << "," << lon << "," << cd << "\n";
-
-		if (ii >= contador)
+		if (ic >= avioes.contador)
 		{
-			contador++;
-			paradas.push_back({ia, ip, lat, lon, cd});
+			if (!avioes.getHasKey(ia))
+				avioes.mapa[ia] = vector<Parada>();
+			
+			x = ((lon / (double)360.0) + 0.5);
+			y = ((lat / (double)-180.0) + 0.5);
+
+			avioes.contador++; // Pode vir desordenado, mas todos serão aceitos
+			avioes.mapa[ia].push_back({ic, ip, lat, lon, cd, x, y});
 		}
 	}
 
+	/*
 	cout << "Paradas: \n";
 	for (unsigned int i = 0; i < paradas.size(); i++)
 	{
@@ -96,6 +112,7 @@ void requestParadas(string host, int porta, vector<Parada> &paradas, int &contad
 		cd = paradas[i].carga_descarga;
 		cout << ia << ", " << ip << "," << lat << "," << lon << "," << cd << "\n";
 	}
+	*/
 
 	close( sock );
 }

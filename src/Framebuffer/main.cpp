@@ -18,17 +18,23 @@ int main (int argc, char **argv)
 	}
 	string host(argv[1]);
 	int porta = 9998;
-	int contador = 0;
-	vector<Parada> paradas;
-	requestParadas(host, porta, paradas, contador);
+	
+	Avioes avioes;
+	requestParadas(host, porta, avioes);
 
 	signal(SIGINT, sig_handler);
-	Screen s;
 	vector<Borda> mapa;
+
+	Screen s;
 
 	// Ler o mapa
 	{
-		ifstream fis ("bounds.txt", ifstream::in);
+		stringstream ss;
+		char * buf = new char[512];
+		buf = getcwd(buf, 511);
+		ss << buf << "/src/Framebuffer/bounds.txt";
+		cout << ss.str() << endl;
+		ifstream fis (ss.str(), ifstream::in);
 		int n;
 		fis >> n;
 		mapa = vector<Borda>(n);	
@@ -48,32 +54,44 @@ int main (int argc, char **argv)
 		  bordas = {10, 230, 30},
 		  branco = {255, 255, 255},
 		  preto  = {0, 0, 0};
+	
 	int linestep  = 15;
-	int xinterval = s.width * linestep  / 360;
-	int yinterval = s.height * linestep / 180;
+	
+	float xinterval = s.width * linestep  / 360;
+	float yinterval = s.height * linestep / 180;
 
 	int t = 0;
 	while (!flag)
 	{
+		requestParadas(host, porta, avioes);
 		s.clear(fundo);
-		
+
 		// Desenhar o mapa
 		for (uint i = 0; i < mapa.size(); i++)
 			s.drawPixel(mapa[i].x, mapa[i].y, bordas);
 
-		for (uint x = 0; x < s.width; x += xinterval)
-			s.drawDottedLine(x, 0, x, s.height - 1, 3, linhas);
-		for (uint y = 0; y < s.height; y += yinterval)
-			s.drawDottedLine(0, y, s.width - 1, y, 3, linhas);
+		for (float x = 0; x < s.width; x += xinterval)
+			s.drawDottedLine((uint)x, 0, (uint)x, s.height - 1, 3, linhas);
+		for (float y = 0; y < s.height; y += yinterval)
+			s.drawDottedLine(0, (uint)y, s.width - 1, (uint)y, 3, linhas);
 
-		for (uint i = 0; i < paradas.size(); i++)
+		cout << "Qtde avioes: " << avioes.mapa.size() << "\n";
+		for (auto &a : avioes.mapa)
 		{
-			cout << "avião " << i << ": ";
-			uint x = ((paradas[i].longitude / 360.0) + 0.5) * s.width;
-			uint y = ((paradas[i].latitude / -180.0) + 0.5) * s.height;
-			cout << x << ", " << y << "\n";
-			s.drawCircle(x, y, 13, preto);
-			s.drawCircle(x, y, 11, branco);
+			uint x = 0, y = 0, xa, ya;
+			cout << "Avião " << a.first << ": " << a.second.size() << " paradas:\n";
+			for (uint i = 0; i < a.second.size(); i++)
+			{
+				xa = x; ya = y;
+				cout << "\tParada " << a.second[i].num_parada;
+				x = a.second[i].x * s.width;
+				y = a.second[i].y * s.height;
+				cout << a.second[i].x << ", " << a.second[i].y << "\n";
+				s.drawCircle(x, y, 13, preto);
+				s.drawCircle(x, y, 11, branco);
+				if (i != 0)
+					s.drawLine(x, y, xa, ya, branco); 
+			}
 		}
 
 		// Desenhar 'frame' pra deixar bonito
