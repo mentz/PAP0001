@@ -14,8 +14,6 @@ HOST = input();
 
 while True:
 	try:
-		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		sock.connect((HOST, PORT))
 		print("Digite o numero do aviao: ")
 		num_aviao = int(input())
 		print("Digite o numero da parada: ")
@@ -38,6 +36,8 @@ while True:
 		carga = float(input())
 		data = "x;0;" + str(num_aviao) + ";" + str(num_parada) + ";" + str(lat) + ";" + str(long) + ";" + str(carga) + ";x"
 
+		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		sock.connect((HOST, PORT))
 		sock.sendall(bytes(data, "utf-8"))
 		received = str(sock.recv(1024), "utf-8")
 	finally:
