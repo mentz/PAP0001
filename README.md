@@ -1,7 +1,9 @@
 # PAP0001
 Repositório de tarefas e trabalhos das aulas de Paradigmas de Programação
 
-#Trabalho com Linux framebuffer/ioctl()
+
+
+#Trabalho com Linux framebuffer/ioctl() - pasta Trabalho1
 Os três componentes:
 * server.py
 * client.py
