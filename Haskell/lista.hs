@@ -1,4 +1,5 @@
 -- Autor: Lucas Litter Mentz
+import Data.Char -- para uso nas 34 e 35
 
 -- 1
 soma :: (Int, Int) -> Int
@@ -49,6 +50,7 @@ fibonacci a = fibonacci (a-2) + fibonacci (a-1)
 
 -- 10: 1-indexado
 elemento :: [a] -> Int -> a
+elemento [] _ = error "Posição excede tamanho do vetor"
 elemento (h:t) 1 = h
 elemento (h:t) p = elemento t (p-1)
 
@@ -101,7 +103,7 @@ removerUltimo [] = []
 removerUltimo [a] = []
 removerUltimo (h:t) = [h] ++ removerUltimo t
 
--- 20: A terminar
+-- 20
 auxRemoverRepetidos :: (Eq a) => a -> [a] -> [a]
 auxRemoverRepetidos a [] = []
 auxRemoverRepetidos a (h:t) | a == h = auxRemoverRepetidos a t
@@ -192,3 +194,18 @@ rodarEsquerda n (h:t) = rodarEsquerda (n-1) (t ++ [h])
 -- 33
 rodarDireita :: Int -> [a] -> [a]
 rodarDireita n b = rodarEsquerda ((length b) - (mod n (length b))) b
+
+-- 34
+todasMaiusculas :: String -> String
+todasMaiusculas [] = []
+todasMaiusculas (h:t)
+   | and (((ord h) >= ord 'a'), ((ord h) <= ord 'z')) = [chr (ord h - 32)] ++ todasMaiusculas t
+   | otherwise = [h] ++ todasMaiusculas t
+
+-- 35
+-- A FAZER
+
+-- 36
+seleciona :: [a] -> [Int] -> [a]
+seleciona [] _ = []
+seleciona lista (h:t) = [elemento lista h] ++ seleciona lista t
